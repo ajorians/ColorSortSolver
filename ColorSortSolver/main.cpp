@@ -70,7 +70,7 @@ int main()
       Get2TubeBoard(),
       Get3TubeBoard(),
       Get8TubeBoard(),
-      //Get11TubeBoard()
+      Get11TubeBoard()
    };
 
    for ( const auto& boardToSolve : boardsToSolve )
