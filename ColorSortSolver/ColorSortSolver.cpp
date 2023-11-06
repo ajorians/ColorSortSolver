@@ -61,16 +61,17 @@ std::vector<ColorSortMove> ColorSortSolver::Solve() const
    std::vector<ColorSortBoard> boardsPositionsSeen{ _board };
 
    std::deque<MoveSet> movesConsidering;
-   for( const auto& move : GetPossibleMoves( _board ) )
-   {
-      movesConsidering.push_back( { move } );
-   }
 
    while ( true )
    {
       //pop front set of moves off
-      MoveSet moves = movesConsidering.front();
-      movesConsidering.pop_front();
+      MoveSet moves;
+
+      if ( !movesConsidering.empty() )
+      {
+         moves = movesConsidering.front();
+         movesConsidering.pop_front();
+      }
 
       if ( static_cast<int>( moves.size() ) > movesInvolved )
       {
@@ -98,7 +99,8 @@ std::vector<ColorSortMove> ColorSortSolver::Solve() const
          }
 
          //Is this a revert of last move
-         if ( possibleMove.BallColor == moves.back().BallColor &&
+         if ( !moves.empty() &&
+              possibleMove.BallColor == moves.back().BallColor &&
               possibleMove.DropTubeIndex == moves.back().PickUpTubeIndex &&
               possibleMove.PickUpTubeIndex == moves.back().DropTubeIndex )
          {
