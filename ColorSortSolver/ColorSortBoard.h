@@ -10,7 +10,7 @@ class ColorSortBoard
 public:
    ColorSortBoard( int numTubes, int ballsPerTube );
    ColorSortBoard( const ColorSortBoard& rhs ) = default;
-   bool operator==(const ColorSortBoard& rhs) const = default;
+   bool operator==(const ColorSortBoard& rhs) const;
    void SetupTube( int tubeIndex, const std::vector<Ball>& balls );
 
    int GetNumTubes() const;

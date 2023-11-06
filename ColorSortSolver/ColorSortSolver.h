@@ -4,7 +4,6 @@
 
 #include <vector>
 
-enum class Ball;
 struct ColorSortMove;
 
 class ColorSortSolver
@@ -16,8 +15,6 @@ public:
 
 private:
    std::vector<ColorSortMove> GetPossibleMoves( const ColorSortBoard& board ) const;
-
-   std::vector<ColorSortBoard> MoveOnBoards( const std::vector<ColorSortBoard>& boards ) const;
 
 private:
    ColorSortBoard _board;

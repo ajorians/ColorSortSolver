@@ -2,29 +2,12 @@
 
 #include "ColorSortMove.h"
 
-#include <iterator>
 #include <algorithm>
-#include <ranges>
 #include <deque>
 #include <iostream>
 
 namespace
 {
-   template<typename T>
-   void MoveAppend( std::vector<T>& src, std::vector<T>& dst )
-   {
-      if ( dst.empty() )
-      {
-         dst = std::move( src );
-      }
-      else
-      {
-         dst.reserve( dst.size() + src.size() );
-         std::move( std::begin( src ), std::end( src ), std::back_inserter( dst ) );
-         src.clear();
-      }
-   }
-
    template<typename T>
    bool AllOf( const std::vector<T>& vec, const T& t )
    {
@@ -53,6 +36,16 @@ namespace
 
       return false;
    }
+
+   bool haveSeenBoardBefore( const std::vector<ColorSortBoard>& boardsSeen, const ColorSortBoard& board )
+   {
+      if ( boardsSeen.cend() != std::find( boardsSeen.cbegin(), boardsSeen.cend(), board ) )
+      {
+         return true;
+      }
+
+      return false;
+   }
 }
 
 ColorSortSolver::ColorSortSolver( const ColorSortBoard& board )
@@ -63,6 +56,8 @@ ColorSortSolver::ColorSortSolver( const ColorSortBoard& board )
 
 std::vector<ColorSortMove> ColorSortSolver::Solve() const
 {
+   int movesInvolved = 0;
+
    std::vector<ColorSortBoard> boardsPositionsSeen{ _board };
 
    std::deque<MoveSet> movesConsidering;
@@ -76,6 +71,12 @@ std::vector<ColorSortMove> ColorSortSolver::Solve() const
       //pop front set of moves off
       MoveSet moves = movesConsidering.front();
       movesConsidering.pop_front();
+
+      if ( static_cast<int>( moves.size() ) > movesInvolved )
+      {
+         std::cout << "Considering " << moves.size() << " moves" << std::endl;
+         movesInvolved = static_cast<int>( moves.size() );
+      }
 
       ColorSortBoard board = _board.ApplyMoves( moves );
 
@@ -91,14 +92,28 @@ std::vector<ColorSortMove> ColorSortSolver::Solve() const
       //evaluate them
       for ( const auto& possibleMove : possibleMoves )
       {
+         if ( NoGainMove( board, possibleMove ) )
+         {
+            continue;
+         }
+
+         //Is this a revert of last move
+         if ( possibleMove.BallColor == moves.back().BallColor &&
+              possibleMove.DropTubeIndex == moves.back().PickUpTubeIndex &&
+              possibleMove.PickUpTubeIndex == moves.back().DropTubeIndex )
+         {
+            continue;
+         }
+
          ColorSortBoard newboard = board.ApplyMove( possibleMove );
 
          //Check if seen this board before and if so discard it
-         if ( boardsPositionsSeen.cend() != std::find( boardsPositionsSeen.cbegin(), boardsPositionsSeen.cend(), newboard ) )
+         if ( haveSeenBoardBefore( boardsPositionsSeen, newboard ) )
          {
             //Seen this before so skip it
             continue;
          }
+
          boardsPositionsSeen.push_back( newboard );
 
          MoveSet newMoves = moves;

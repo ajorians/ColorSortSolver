@@ -31,6 +31,33 @@ ColorSortBoard::ColorSortBoard( int numTubes, int ballsPerTube )
    }
 }
 
+bool ColorSortBoard::operator==( const ColorSortBoard& rhs ) const
+{
+   assert( _tubes.size() == rhs._tubes.size() );
+   int numTubes = static_cast<int>( _tubes.size() );
+
+   for ( int tubeIndex = 0; tubeIndex < numTubes; tubeIndex++ )
+   {
+      bool matchesAnotherTube = false;
+      for ( int inputTubeIndex = 0; inputTubeIndex < numTubes; inputTubeIndex++ )
+      {
+         if ( _tubes[tubeIndex] == rhs._tubes[inputTubeIndex] )
+         {
+            matchesAnotherTube = true;
+            break;
+         }
+      }
+
+      if ( !matchesAnotherTube )
+      {
+         //Tube doesn't match another tube so they are not equal
+         return false;
+      }
+   }
+
+   return true;
+}
+
 void ColorSortBoard::SetupTube( int tubeIndex, const std::vector<Ball>& balls )
 {
    _tubes[tubeIndex] = balls;
@@ -69,13 +96,7 @@ bool ColorSortBoard::IsSolved() const
 
 ColorSortBoard ColorSortBoard::ApplyMove( const ColorSortMove& move ) const
 {
-   ColorSortBoard copyBoard( *this );
-
-   Ball ball = copyBoard._tubes[move.PickUpTubeIndex].back();
-   copyBoard._tubes[move.PickUpTubeIndex].pop_back();
-   copyBoard._tubes[move.DropTubeIndex].push_back( ball );
-
-   return copyBoard;
+   return ApplyMoves( { move } );
 }
 
 ColorSortBoard ColorSortBoard::ApplyMoves( const std::vector<ColorSortMove>& moves ) const
